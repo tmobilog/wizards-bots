@@ -64,11 +64,8 @@ export async function getAuctionInfo(): Promise<{ minutesLeft: number, newWizard
 
 
 
-export async function getClosingPrices(): Promise<{ bidAmounts: number[], oldWizardIds: number[] }> {
-
+export async function getClosingPrices(auctionCount: number): Promise<{ bidAmounts: number[], oldWizardIds: number[] }> {
   const connectionURL = process.env.MAINNET_RPC_URI;
-  // console.log("url: ", connectionURL);
-
   const provider = new ethers.providers.JsonRpcProvider(connectionURL);
   const auctionHouseContract = new ethers.Contract(auctionHouseAddress, auctionHouseABI, provider);
 
@@ -84,7 +81,7 @@ export async function getClosingPrices(): Promise<{ bidAmounts: number[], oldWiz
     0 - BLOCKS_PER_DAY
   );
 
-  const latestSettledAuctions: ISettledAuction[] = settledAuctionEvents.slice(-5).map((e) => {
+  const latestSettledAuctions: ISettledAuction[] = settledAuctionEvents.slice(-auctionCount).map((e) => {
     return {
       wizardId: Math.floor(parseFloat(ethers.utils.formatUnits(e?.args?.wizardId)) * (10 ** 18)),
       aId: parseFloat(ethers.utils.formatUnits(e?.args?.aId)) * (10 ** 18),
@@ -92,8 +89,6 @@ export async function getClosingPrices(): Promise<{ bidAmounts: number[], oldWiz
       amount: parseFloat(ethers.utils.formatUnits(e?.args?.amount)),
     } as ISettledAuction
   }).sort((a: ISettledAuction, b: ISettledAuction) => a.wizardId - b.wizardId);
-
-  console.log(latestSettledAuctions);
 
   const bidAmounts = latestSettledAuctions.map((a) => a.amount);
   const oldWizardIds = latestSettledAuctions.map((a) => a.wizardId);
