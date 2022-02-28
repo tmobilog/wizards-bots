@@ -32,7 +32,7 @@ export async function getAuctionInfo(): Promise<{ minutesLeft: number, newWizard
 
   // TODO: only need the most recent auction tbh 
   // QUESTION: is there ever the case that we would be in between creating auctions? 
-  const latestCreatedAuctions: IAuction[] = createdAuctionEvents.slice(-5).map((e) => {
+  const latestCreatedAuctions: IAuction[] = createdAuctionEvents.slice(-3).map((e) => {
     return {
       wizardId: e?.args?.wizardId,
       aId: e?.args?.aId,
